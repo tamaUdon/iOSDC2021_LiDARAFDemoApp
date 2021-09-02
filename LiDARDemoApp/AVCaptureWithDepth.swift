@@ -222,10 +222,6 @@ extension AVCaptureWithDepth: ARSessionDelegate {
                 lidarImage_H = image.size.height
             }
 
-            DispatchQueue.global(qos: .userInitiated).async {
-                self.computefPOI(imageBuffer: imageBuffer, image: image)
-            }
-
             if let cx = centroid_x,
                let cy = centroid_y {
 
@@ -236,6 +232,10 @@ extension AVCaptureWithDepth: ARSessionDelegate {
             }
             
             handler(image)
+            
+            DispatchQueue.global(qos: .userInitiated).async {
+                self.computefPOI(imageBuffer: imageBuffer, image: image)
+            }
         }
     }
     
