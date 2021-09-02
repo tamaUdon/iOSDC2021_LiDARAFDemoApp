@@ -223,7 +223,7 @@ extension AVCaptureWithDepth: ARSessionDelegate {
             }
 
             DispatchQueue.global(qos: .userInitiated).async {
-                self.computefPOIAwait(imageBuffer: imageBuffer, image: image)
+                self.computefPOI(imageBuffer: imageBuffer, image: image)
             }
 
             if let cx = centroid_x,
@@ -239,16 +239,7 @@ extension AVCaptureWithDepth: ARSessionDelegate {
         }
     }
     
-    func computefPOIAwait(imageBuffer: CVPixelBuffer, image: UIImage) -> Void {
-        let semaphore = DispatchSemaphore(value: 0)
-        
-        self.computefPOI(imageBuffer: imageBuffer, image: image, completion: { _ in
-            semaphore.signal()
-        })
-        semaphore.wait()
-    }
-    
-    func computefPOI(imageBuffer: CVPixelBuffer, image: UIImage, completion: @escaping (Int) -> Void) {
+    func computefPOI(imageBuffer: CVPixelBuffer, image: UIImage/*, completion: @escaping (Int) -> Void*/) {
         
         // count up
         frameCounter += 1
@@ -281,8 +272,6 @@ extension AVCaptureWithDepth: ARSessionDelegate {
                 y_sum += (fidx / Int(image.size.height))
             }
         }
-        
-        completion(0)
     }
 
     
@@ -308,26 +297,11 @@ extension AVCaptureWithDepth:  AVCaptureVideoDataOutputSampleBufferDelegate {
         if let handler = handler {
             let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
             let ciimage = CIImage(cvPixelBuffer: imageBuffer)
-            var image = self.convert(cmage: ciimage)
+            let image = self.convert(cmage: ciimage)
             
             if (captureImage_W == nil && captureImage_H == nil) {
                 captureImage_W = image.size.width
                 captureImage_H = image.size.height
-            }
-            
-            if let cx = centroid_x,
-               let cy = centroid_y,
-               let captureImage_W = captureImage_W,
-               let captureImage_H = captureImage_H,
-               let lidarImage_W = lidarImage_W,
-               let lidarImage_H = lidarImage_H {
-                
-                let adjustPoint_x = CGFloat(cx) * (captureImage_W / lidarImage_W)
-                let adjustPoint_y = CGFloat(cy) * (captureImage_H / lidarImage_H)
-                
-                if let fimage = drawRectangleOnImage(image: image, point: CGPoint(x: adjustPoint_x, y: adjustPoint_y)) {
-                    image = fimage
-                }
             }
             
             handler(image)
