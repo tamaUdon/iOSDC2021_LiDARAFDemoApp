@@ -239,18 +239,18 @@ extension AVCaptureWithDepth: ARSessionDelegate {
         }
     }
     
-    func computefPOI(imageBuffer: CVPixelBuffer, image: UIImage/*, completion: @escaping (Int) -> Void*/) {
+    func computefPOI(imageBuffer: CVPixelBuffer, image: UIImage) {
         
         // count up
         frameCounter += 1
         
         // check depth data
-        buildDepthInfo(depthMap: imageBuffer)
+        self.buildDepthInfo(depthMap: imageBuffer)
         
         // copy cache data
         let depthArrayCache = depthArray
         
-        if (frameCounter > 60) {
+        if (frameCounter >= 60) {
 
             // calculate average
             centroid_x = x_sum / frameCounter
